@@ -1,0 +1,104 @@
+---
+title: "Statistical Inference Course Project -  part 1"
+date: "1 March 2018"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Overview
+
+In this project you I’ll investigate the exponential distribution in R and compare it with the Central Limit Theorem. The exponential distribution is simulated in R with rexp(n, lambda) where lambda is the rate parameter equal 0.2. I will investigate the distribution of averages of 40 exponentials and there will be a thousand simulations.
+
+
+```{r}
+n <- 1000
+samples <- 40
+lambda <- 0.2
+
+```
+
+# Simulation
+
+I will generate the simulation
+```{r}
+dataRaw <- matrix(data = rexp(n = n * samples, rate = lambda), nrow = n, ncol = samples)
+dataRaw <- as.data.frame(dataRaw)
+```
+
+I will generate the distribution of the averages of 40 exponentials
+```{r}
+dataMean <- apply(X = dataRaw, MARGIN = 1, FUN = mean)
+```
+
+# Sample Mean versus Theoretical Mean and Sample Variance versus Theoretical Variance
+
+### The theoretical mean of the distribution
+```{r}
+theoreticalMean <- 1 / lambda
+theoreticalMean
+```
+
+### The sample mean
+```{r}
+sampleMean <- mean(dataMean)
+sampleMean
+```
+
+The sample mean is close to the theoretical mean
+
+### The theoretical variance of the distribution
+```{r}
+theoreticalVariance <- (1 / lambda)^2/samples
+theoreticalVariance
+```
+
+### The sample variance
+```{r}
+sampleVariance <- var(dataMean)
+sampleVariance
+```
+
+The sample variance is close to the theoretical variance
+
+
+### The theoretical standard deviation of the distribution
+```{r}
+theoreticalSD <- 1/lambda/sqrt(samples)
+theoreticalSD
+```
+
+### The sample standard deviation
+```{r}
+standardDeviation <- sd(dataMean)
+standardDeviation
+```
+
+The sample standard deviation is close to the theoretical standard deviation
+
+## The distribution of averages of 40 random eponentials with 1000 simulations
+
+```{r include=FALSE}
+library(ggplot2)
+```
+
+```{r}
+ggplot(data = as.data.frame(dataMean), aes(dataMean)) +
+  geom_histogram(aes(y=..density..), fill="white", col="lightblue", alpha=.3, bins = 30) +
+  geom_density(col="lightblue3", lwd=2) +
+  geom_vline(xintercept = sampleMean, col="lightblue2", linetype="dashed", lwd=2) +
+  geom_vline(xintercept = theoreticalMean, col="red") +
+  labs(x="Mean", y = "Density") +
+  theme_light()
+```
+
+As you can see above the distribution of averages of independent and identically distributed (IID) variables becomes that of a standard normal.
+
+
+
+
+

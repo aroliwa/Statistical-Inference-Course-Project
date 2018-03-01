@@ -1,0 +1,96 @@
+---
+title: "Statistical Inference Course Project -  part 2"
+date: "1 March 2018"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r include=FALSE}
+library(ggplot2)
+library(dplyr)
+```
+
+# Dataset 
+
+The Effect of Vitamin C on Tooth Growth in Guinea Pigs
+
+The response is the length of odontoblasts (cells responsible for tooth growth) in 60 guinea pigs. Each animal received one of three dose levels of vitamin C (0.5, 1, and 2 mg/day) by one of two delivery methods, (orange juice or ascorbic acid  (a form of vitamin C and coded as VC).
+
+```{r}
+data("ToothGrowth")
+```
+
+Lets see the first part of dataset ToothGrowth
+
+```{r}
+head(ToothGrowth)
+```
+
+Display the structure of dataset ToothGrowth
+```{r}
+str(ToothGrowth)
+```
+
+# Exploratory Data Analysis
+
+Display descriptive statistics of dataset
+```{r}
+summary(ToothGrowth)
+```
+
+Group data by supplement type and display mean, median and standard deviation
+```{r}
+ToothGrowth %>%
+  group_by(supp) %>%
+  summarise(lenMean = mean(len), lenMedian = median(len), lenSD = sd(len))
+```
+
+Plot Tooth length vs Supplement type (VC or OJ)
+```{r}
+ggplot(data = ToothGrowth, aes(x = supp, y = len)) +
+  geom_boxplot(aes(fill=supp), alpha=.7) +
+  labs(title="Tooth length vs Supplement type (VC or OJ)")
+```
+
+Group data by Dose in milligrams/day and display mean, median and standard deviation
+```{r}
+ToothGrowth %>%
+  group_by(as.factor(dose)) %>%
+  summarise(lenMean = mean(len), lenMedian = median(len), lenSD = sd(len))
+```
+
+Plot Tooth length vs Dose in milligrams/day
+```{r}
+ggplot(data = ToothGrowth, aes(x = as.factor(dose), y = len)) +
+  geom_boxplot(aes(fill=as.factor(dose)), alpha=.7) +
+  labs(title="Tooth length vs Dose in milligrams/day", x="Dose in milligrams/day")
+```
+
+# Statistical Inference based on dataset 
+
+```{r}
+t.test(formula = len ~ supp, data = ToothGrowth, paired=FALSE, var.equal=FALSE)
+```
+As p-value is larger than the significance level of 0.05, null hypothesis can't be rejected and hence we infer that Orange Juice (OJ)  and Ascorbic acid (VC) have the same effect on tooth growth. 
+
+```{r}
+t.test(formula = len ~ dose, 
+       data = ToothGrowth[which(ToothGrowth$dose == .5 | ToothGrowth$dose == 1 ), ], 
+       paired=FALSE, var.equal=TRUE)
+```
+
+As p-value is smaller than the significance level of 0.05, null hypothesis can be rejected and hence we infer that dose 0.5 and 1  milligrams/day do not have the same effect on tooth growth
+
+```{r}
+t.test(formula = len ~ dose, 
+       data = ToothGrowth[which(ToothGrowth$dose == 1 | ToothGrowth$dose == 2 ), ], 
+       paired=FALSE, var.equal=TRUE)
+```
+
+As p-value is smaller than the significance level of 0.05, null hypothesis can be rejected and hence we infer that dose 1 and 2  milligrams/day do not have the same effect on tooth growth
